@@ -7,7 +7,7 @@ from plotnine import *
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import RandomForestRegressor
-
+import pickle
 
 #API Token
 api = "d073f379a0e94969beb4956bda52ef0f"
@@ -133,11 +133,11 @@ df_train2, df_test2 = train_test_split(df_train, test_size=0.30, random_state=42
 df_test_original = df_test2[["homeTeam", "awayTeam", "season"]].copy()
 
 
-df_train2 = pd.get_dummies(df_train2,columns=["homeTeam","awayTeam","referees", "season"])
-df_test2 = pd.get_dummies(df_test2,columns=["homeTeam","awayTeam","referees", "season"])
+df_train2 = df_train2.drop(columns=["status", "referees"])
+df_test2 = df_test2.drop(columns=["status", "referees"])
 
-df_train2 = df_train2.drop(columns=["status"])
-df_test2 = df_test2.drop(columns=["status"])
+df_train2 = pd.get_dummies(df_train2,columns=["homeTeam","awayTeam","season"])
+df_test2 = pd.get_dummies(df_test2,columns=["homeTeam","awayTeam","season"])
 
 
 df_train2_copia = df_train2
@@ -188,6 +188,7 @@ XV_test = df_test2_copia.drop(columns=["awayGoalsFullTime"])
 goles_local_DT = caja_negra_L_DT.predict(XL_test)
 goles_visitante_DT = caja_negra_V_DT.predict(XV_test)
 
+#Nos quedamos con el de RandomForest
 goles_local_RF = caja_negra_L_RF.predict(XL_test)
 goles_visitante_RF = caja_negra_V_RF.predict(XV_test)
 
@@ -235,3 +236,12 @@ resultado = pd.DataFrame({
     "predicted_homeGoals": goles_local_RF,
     "predicted_awayGoals": goles_visitante_RF
 })
+
+#Guardamos los modelos entrenados localmente con Pickle
+
+with open("Modelo_local.pkl", "wb") as f:
+    pickle.dump(caja_negra_L_RF, f)
+    
+with open("Modelo_visitante.pkl", "wb") as q:
+    pickle.dump(caja_negra_V_RF, q)
+    
