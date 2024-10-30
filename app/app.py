@@ -15,9 +15,16 @@ def predecir_resultado(equipo_local, equipo_visitante):
         if equipo_local == equipo_visitante:
             return "Error: El equipo local y visitante no pueden ser el mismo."
         
-        home_team = df.loc[df["homeTeam"] == equipo_local].loc[:, []]
-        away_team = df.loc[df["awayTeam"] == equipo_visitante].loc
-        dataframe = 
+        columns_home = df.filter(like="ome", axis=1).columns
+        columns_away = df.filter(like="way", axis=1).columns
+
+        home_team = df.loc[df["homeTeam"] == equipo_local].loc[:, columns_home].iloc[-1, :]
+        away_team = df.loc[df["awayTeam"] == equipo_visitante].loc[:, columns_away].iloc[-1, :]
+        dataframe = pd.concat([home_team, away_team], axis=0)
+
+        dataframe = pd.DataFrame(dataframe)
+
+        dataframe = dataframe.T
         
         if dataframe.empty:
             return "No se encontraron datos para estos equipos."
@@ -25,7 +32,7 @@ def predecir_resultado(equipo_local, equipo_visitante):
         datos = modelo.feature_names_in_
         dataframe = dataframe[datos]
 
-        prediccion = modelo.predict(dataframe)[0]
+        prediccion = modelo.predict(dataframe)
         
         if prediccion == "DRAW":
             return "Empate"
